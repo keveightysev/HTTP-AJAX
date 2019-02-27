@@ -16,6 +16,7 @@ class App extends React.Component {
       age: '',
     }
   }
+
   componentDidMount() {
     axios
       .get('http://localhost:5000/friends')
@@ -33,11 +34,32 @@ class App extends React.Component {
     })
   }
 
+  handleSubmit = e => {
+    e.preventDefault();
+    const newFriend = {
+      name: this.state.name,
+      email: this.state.email,
+      age: this.state.age,
+      id: this.state.friends.length + 1,
+    }
+
+    // const friends = [...friends, newFriend]
+
+    axios
+      .post('http://localhost:5000/friends', newFriend)
+        .then(res => {
+          this.setState({ friends: res.data })
+        })
+        .catch(err => {
+          this.setState({ error: err })
+        });
+  }
+
   render() {
     return (
       <div className="App">
         <h1>Friend List</h1>
-        <FriendForm {...this.state} handleChange={this.handleChange} />
+        <FriendForm {...this.state} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
         <FriendList {...this.state} />
       </div>
     );
