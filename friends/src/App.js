@@ -17,50 +17,70 @@ class App extends React.Component {
     }
   }
 
-  componentDidMount() {
-    axios
-      .get('http://localhost:5000/friends')
-      .then(res => {
-        this.setState({ friends: res.data });
-      })
-      .catch(err => {
-        this.setState({ error: err });
-      });
+  async componentDidMount() {
+    try {
+      const res = await axios.get('http://localhost:5000/friends')
+      this.setState({ friends: res.data })
+    } catch (err) {
+      console.log(err.message)
+    }
   }
 
   handleChange = e => {
+    e.persist();
+    let value = e.target.value;
+    if (e.target.name === "age") {
+      value = Number(value);
+    }
+
     this.setState({
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     })
   }
 
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
     const newFriend = {
       name: this.state.name,
       email: this.state.email,
       age: this.state.age,
-      id: this.state.friends.length + 1,
     }
 
-    // const friends = [...friends, newFriend]
+    const res = await axios.post('http://localhost:5000/friends', newFriend);
+    this.setState({ friends: res.data });
+  }
 
-    axios
-      .post('http://localhost:5000/friends', newFriend)
-        .then(res => {
-          this.setState({ friends: res.data })
-        })
-        .catch(err => {
-          this.setState({ error: err })
-        });
+  handleDelete = async (e, id) => {
+    e.preventDefault();
+    const res = await axios.delete(`http://localhost:5000/friends/${id}`)
+    this.setState({ friends: res.data });
+  }
+
+  handleUpdate = async (e, friend) => {
+    e.preventDefault();
+    const updateFriend ={
+      name: friend.name,
+      email: friend.email,
+      age: friend.age,
+      id: friend.id,
+    }
+    console.log(updateFriend);
+    const res = await axios.put(`http://localhost:5000/friends/${updateFriend.id}`, updateFriend)
+    this.setState({ friends: res.data });
   }
 
   render() {
     return (
       <div className="App">
         <h1>Friend List</h1>
-        <FriendForm {...this.state} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
-        <FriendList {...this.state} />
+        <FriendForm {...this.state} 
+          handleChange={this.handleChange} 
+          handleSubmit={this.handleSubmit}
+        />
+        <FriendList {...this.state} 
+          handleDelete={this.handleDelete}
+          handleUpdate={this.handleUpdate} 
+        />
       </div>
     );
   }

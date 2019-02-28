@@ -5,7 +5,11 @@ import Friend from './Friend';
 const FriendList = props => {
     return (
         <>
-        {props.friends.map(friend => <Friend {...friend} key={friend.id} />)}
+        {props.friends.map(friend => <Friend {...friend} 
+            key={friend.id} 
+            handleDelete={props.handleDelete} 
+            handleUpdate={props.handleUpdate}
+        />)}
         </>
     );
 }
